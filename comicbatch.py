@@ -35,6 +35,8 @@ def get_parser():
         help='Maximum page height',
         default=2000
     )
+    parser.add_argument('-a', '--author', help='Author metadata')
+    parser.add_argument('-t', '--title', help='Title prefix')
 
     return parser
 
@@ -129,7 +131,7 @@ def group_issues(src, count, max_size):
 
     return all_groups
 
-def export_group(indices, temp_path, dst):
+def export_group(indices, temp_path, dst, title, author):
     pages_path = os.path.join(temp_path, 'pages')
     try:
         os.mkdir(pages_path)
@@ -155,7 +157,18 @@ def export_group(indices, temp_path, dst):
     )
     all_pages.sort(key=lambda f: f.split('/')[-1])
 
-    os.system('img2pdf --output "%s" %s' % (dst, ' '.join(all_pages)))
+    optional_args = []
+    if title:
+        optional_args.append('--title "%s"' % title)
+    if author:
+        optional_args.append('--author "%s"' % author)
+    os.system(
+        'img2pdf --output "%s" %s %s' % (
+            dst,
+            ' '.join(optional_args),
+            ' '.join(all_pages),
+        ),
+    )
 
 args = get_parser().parse_args()
 temp_path = os.path.join(args.directory, 'tmp')
@@ -189,8 +202,10 @@ for group in groups:
     export_group(
         group,
         temp_path,
-        os.path.join(args.directory, '%s_%03d.pdf' % (args.output, i)),
+        os.path.join(args.directory, '%s_%03d.pdf' % (args.output, i + 1)),
+        '%s %d' % (args.title, i + 1) if args.title else None,
+        args.author,
     )
     i += 1
 print('Exported %d PDFs.' % len(groups))
-#shutil.rmtree(os.path.join(args.directory, 'tmp'))
+shutil.rmtree(os.path.join(args.directory, 'tmp'))
