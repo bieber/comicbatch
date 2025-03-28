@@ -80,7 +80,7 @@ def scale_page(src, dst, w, h):
                 f,
                 w,
                 h,
-                os.path.join(dst, 'page_%d.jpg' % page),
+                os.path.join(dst, 'page_%03d.jpg' % page),
             ),
         )
         page += 1
@@ -193,4 +193,4 @@ for group in groups:
     )
     i += 1
 print('Exported %d PDFs.' % len(groups))
-shutil.rmtree(os.path.join(args.directory, 'tmp'))
+#shutil.rmtree(os.path.join(args.directory, 'tmp'))
